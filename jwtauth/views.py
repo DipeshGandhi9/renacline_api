@@ -33,23 +33,47 @@ User = get_user_model()
 #     }
 #     return response.Response(res, status.HTTP_201_CREATED)
 
-@swagger_auto_schema(methods=[ 'post'], request_body=ProfileSerializer)
+# @swagger_auto_schema(methods=[ 'post'], request_body=ProfileSerializer)
+# @decorators.api_view(["POST"])
+# @decorators.permission_classes([permissions.AllowAny])
+# def registration(request):
+#     user_data = request.data['owner']
+#     serializer = UserCreateSerializer(data=user_data)
+#     if not serializer.is_valid():
+#         return response.Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+#     user = serializer.save()
+#     profile_data = request.data
+#     profile_data.pop('owner')
+#     profile_data['owner'] = UserCreateSerializer(user).data
+#     profile_serializer = ProfileSerializer(data=profile_data, partial=True)
+#     if not profile_serializer.is_valid():
+#         return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
+#     profile = profile_serializer.save()
+#     refresh = RefreshToken.for_user(profile.owner)
+#     res = {
+#         "refresh": str(refresh),
+#         "access": str(refresh.access_token),
+#     }
+#     return response.Response(res, status.HTTP_201_CREATED)
+
+
+@swagger_auto_schema(methods=['post'], request_body=UserCreateSerializer)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def registration(request):
-    user_data = request.data['owner']
+    user_data = request.data
     serializer = UserCreateSerializer(data=user_data)
     if not serializer.is_valid():
         return response.Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     user = serializer.save()
-    profile_data = request.data
-    profile_data.pop('owner')
-    profile_data['owner'] = UserCreateSerializer(user).data
-    profile_serializer = ProfileSerializer(data=profile_data, partial=True)
-    if not profile_serializer.is_valid():
-        return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
-    profile = profile_serializer.save()
-    refresh = RefreshToken.for_user(profile.owner)
+    # profile_data = request.data
+    # profile_data.pop('owner')
+    # profile_data['owner'] = UserCreateSerializer(user).data
+    # profile_serializer = ProfileSerializer(data=profile_data, partial=True)
+    # if not profile_serializer.is_valid():
+    #     return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
+    # profile = profile_serializer.save()
+    refresh = RefreshToken.for_user(user)
     res = {
         "refresh": str(refresh),
         "access": str(refresh.access_token),

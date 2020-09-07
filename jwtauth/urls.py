@@ -4,6 +4,7 @@ from .views import registration
 
 urlpatterns = [
     path('register/', registration, name='register'),
+    # path('getlogin/', login, name='login'),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

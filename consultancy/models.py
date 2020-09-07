@@ -12,6 +12,7 @@ class Profile(models.Model):
     birth_place = models.CharField(max_length=255)
     district = models.CharField(max_length=255)
     gender = models.IntegerField(choices=Gender.choices(), default=Gender.MALE)
+    main = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):

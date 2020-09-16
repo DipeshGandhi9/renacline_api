@@ -13,8 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from datetime import datetime
 
-from .models import Profile
-from .serializers import ProfileSerializer
+from .models import Profile, Question
+from .serializers import ProfileSerializer, QuestionSerializer
 
 # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -298,6 +298,72 @@ class ProfileViewSet(viewsets.ViewSet):
             else:
                 queryset = Profile.objects.get(owner=user, id=pk)
         serializer = ProfileSerializer(queryset)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        pass
+
+    def partial_update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, pk=None):
+        pass
+
+
+class QuestionViewSet(viewsets.ViewSet):
+    """
+    Example empty viewset demonstrating the standard
+    actions that will be handled by a router class.
+
+    If you're using format suffixes, make sure to also include
+    the `format=None` keyword argument for each action.
+    """
+
+    def list(self, request):
+        user = request.user
+        if user.is_authenticated:
+            queryset = Question.objects.filter(owner=user)
+            if user.is_superuser:
+                queryset = Question.objects.all()
+        serializer = QuestionSerializer(queryset, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    @swagger_auto_schema(request_body=QuestionSerializer)
+    def create(self, request):
+        user = request.user
+
+
+        question_data = request.data
+        profile_data = question_data.pop('profile')
+        profile2_data = question_data.pop('profile2')
+
+        # user_data = request.data
+        # serializer = UserCreateSerializer(data=user_data)
+        # if not serializer.is_valid():
+        #     return response.Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        # user = serializer.save()
+        # profile_data = request.data
+        # profile_data.pop('owner')
+        # profile_data['owner'] = UserCreateSerializer(user).data
+        # birth_date = profile_data['birth_date']
+        # date_time_obj = datetime.strptime(birth_date, "%d/%m/%Y %I:%M %p")
+        # profile_data['birth_date'] = date_time_obj
+        # profile_serializer = ProfileSerializer(data=profile_data, partial=True)
+        # if not profile_serializer.is_valid():
+        #     return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
+        # profile = profile_serializer.save()
+        # return response.Response(profile_serializer.data, status.HTTP_201_CREATED)
+        pass
+
+    def retrieve(self, request, pk=None):
+        user = request.user
+        queryset = None
+        if user.is_authenticated:
+            if user.is_superuser:
+                queryset = Question.objects.get(id=pk)
+            else:
+                queryset = Question.objects.get(owner=user, id=pk)
+        serializer = QuestionSerializer(queryset)
         return Response(serializer.data, status.HTTP_200_OK)
 
     def update(self, request, pk=None):

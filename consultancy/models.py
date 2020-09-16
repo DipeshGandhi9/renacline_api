@@ -21,7 +21,7 @@ class Profile(models.Model):
 
 class Question(models.Model):
     question_text = models.TextField()
-    type = models.CharField(max_length=20)
+    # type = models.CharField(max_length=20)
     type = models.IntegerField(choices=QuestionTypes.choices(), default=QuestionTypes.HOROSCOPE)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='profile')
     profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='profile2')

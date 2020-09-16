@@ -111,6 +111,9 @@ def registration(request):
 
     # Create Profile
     profile_data = request.data
+    if not profile_data['name']:
+        profile_data['name'] = user_data['first_name'] + ' ' + user_data['last_name']
+
     # profile_data.pop('owner')
     profile_data['owner'] = UserCreateSerializer(user).data
     profile_data['main'] = True

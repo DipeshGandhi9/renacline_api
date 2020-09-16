@@ -1,11 +1,12 @@
 from django.urls import path, re_path
 # from .views import ListProfileView, add_profile, update_profile, ProfileListView, ProfileDetailsView
 # from .views import ProfileListView, ProfileDetailsView
-from .views import ProfileViewSet
+from .views import ProfileViewSet, QuestionViewSet
 from rest_framework import routers
 
 router = routers.SimpleRouter()
 router.register(r'profile', ProfileViewSet, basename='profile')
+router.register(r'question', QuestionViewSet, basename='question')
 # router.register(r'accounts', AccountViewSet)
 
 urlpatterns = [

@@ -22,7 +22,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    owner = UserCreateSerializer(partial=True )
+    owner = UserCreateSerializer(partial=True)
+    profile = ProfileSerializer(partial=True)
+    profile2 = ProfileSerializer(partial=True)
 
     class Meta:
         model = Question

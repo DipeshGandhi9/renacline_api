@@ -343,8 +343,8 @@ class QuestionViewSet(viewsets.ViewSet):
                 try:
                     queryset = Profile.objects.get(owner=user, name=name, middle_name=mid_name)
                     profile_obj = ProfileSerializer(queryset, many=False)
-                    # date_time_obj = datetime.strptime(profile_obj.data['birth_date'], "%d/%m/%Y %I:%M %p")
-                    # profile_obj.data['birth_date'] = date_time_obj
+                    date_time_obj = datetime.strptime(profile_obj.data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    profile_obj.data['birth_date'] = date_time_obj
                     question_data['profile'] = profile_obj.data
                 except Profile.DoesNotExist:
                     profile_data['owner'] = UserCreateSerializer(user).data
@@ -366,6 +366,12 @@ class QuestionViewSet(viewsets.ViewSet):
             print("profile2_data has value")
         else:
             print("profile2_data no value")
+
+        if profile_data is not None:
+            profile = question_data['profile']
+            date_time_obj = datetime.strptime(profile['birth_date'], "%d/%m/%Y %I:%M %p")
+            profile['birth_date'] = date_time_obj
+            question_data['profile'] = profile
 
         question_serializer = QuestionSerializer(data=question_data, partial=True)
         if not question_serializer.is_valid():

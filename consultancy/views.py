@@ -331,11 +331,46 @@ class QuestionViewSet(viewsets.ViewSet):
     @swagger_auto_schema(request_body=QuestionSerializer)
     def create(self, request):
         user = request.user
-
-
         question_data = request.data
+        question_data['owner'] = UserCreateSerializer(user).data
         profile_data = question_data.pop('profile')
+        if profile_data is not None:
+            print("for profile 1", profile_data)
+
+            if user.is_authenticated:
+                name = profile_data['name']
+                mid_name = profile_data['middle_name']
+                try:
+                    queryset = Profile.objects.get(owner=user, name=name, middle_name=mid_name)
+                    profile_obj = ProfileSerializer(queryset, many=False)
+                    # date_time_obj = datetime.strptime(profile_obj.data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    # profile_obj.data['birth_date'] = date_time_obj
+                    question_data['profile'] = profile_obj.data
+                except Profile.DoesNotExist:
+                    profile_data['owner'] = UserCreateSerializer(user).data
+                    birth_date = profile_data['birth_date']
+                    date_time_obj = datetime.strptime(birth_date, "%d/%m/%Y %I:%M %p")
+                    profile_data['birth_date'] = date_time_obj
+                    profile_serializer = ProfileSerializer(data=profile_data, partial=True)
+                    if not profile_serializer.is_valid():
+                        return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
+                    profile_obj = profile_serializer.save()
+                    question_data['profile'] = profile_serializer.data
+
+
+        else:
+            print("no value")
+
         profile2_data = question_data.pop('profile2')
+        if profile2_data is not None:
+            print("profile2_data has value")
+        else:
+            print("profile2_data no value")
+
+        question_serializer = QuestionSerializer(data=question_data, partial=True)
+        if not question_serializer.is_valid():
+            return response.Response(question_serializer.errors, status.HTTP_400_BAD_REQUEST)
+        question = question_serializer.save()
 
         # user_data = request.data
         # serializer = UserCreateSerializer(data=user_data)
@@ -352,8 +387,7 @@ class QuestionViewSet(viewsets.ViewSet):
         # if not profile_serializer.is_valid():
         #     return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
         # profile = profile_serializer.save()
-        # return response.Response(profile_serializer.data, status.HTTP_201_CREATED)
-        pass
+        return response.Response(question_serializer.data, status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
         user = request.user

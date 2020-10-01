@@ -101,7 +101,6 @@ User = get_user_model()
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def registration(request):
-    print("registration")
     user_data = request.data
     # Create User
     serializer = UserCreateSerializer(data=user_data)

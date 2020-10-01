@@ -6,7 +6,7 @@ from jwtauth.serializers import UserCreateSerializer
 
 class ProfileSerializer(serializers.ModelSerializer):
     owner = UserCreateSerializer(partial=True)
-    birth_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
+    birth_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p", input_formats="%d/%m/%Y %I:%M %p")
 
     class Meta:
         model = Profile
@@ -24,7 +24,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     owner = UserCreateSerializer(partial=True)
     profile = ProfileSerializer(partial=True)
-    profile2 = ProfileSerializer(partial=True)
+    profile2 = ProfileSerializer(partial=True, required=False)
+    fees = serializers.DecimalField(max_digits=6, decimal_places=2, required=False)
 
     class Meta:
         model = Question

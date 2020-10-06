@@ -13,8 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from datetime import datetime
 
-from .models import Profile, Question
-from .serializers import ProfileSerializer, QuestionSerializer
+from .models import Profile, Question, Answer
+from .serializers import ProfileSerializer, QuestionSerializer, AnswerSerializer
 
 # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -339,39 +339,104 @@ class QuestionViewSet(viewsets.ViewSet):
 
             if user.is_authenticated:
                 name = profile_data['name']
-                mid_name = profile_data['middle_name']
+                gender = profile_data['gender']
                 try:
-                    queryset = Profile.objects.get(owner=user, name=name, middle_name=mid_name)
+                    queryset = Profile.objects.get(owner=user, name__iexact=name)
                     profile_obj = ProfileSerializer(queryset, many=False)
-                    date_time_obj = datetime.strptime(profile_obj.data['birth_date'], "%d/%m/%Y %I:%M %p")
-                    profile_obj.data['birth_date'] = date_time_obj
-                    question_data['profile'] = profile_obj.data
+                    prof_data = profile_obj.data
+                    if profile_obj.data['middle_name'] == "" or profile_obj.data['birth_date'] is None or profile_obj.data['birth_place'] == "":
+                        prof_data['middle_name'] = profile_data['middle_name']
+                        birth_date = profile_data['birth_date']
+                        date_time_obj = datetime.strptime(birth_date, "%d/%m/%Y %I:%M %p")
+                        prof_data['birth_date'] = date_time_obj
+                        prof_data['birth_place'] = profile_data['birth_place']
+                        prof_data['district'] = profile_data['district']
+                        prof_data['gender'] = gender
+                        serializer = ProfileSerializer(data=prof_data, partial=True)
+                        if serializer.is_valid():
+                            profile_obj = serializer.update( profile_obj.instance, serializer.validated_data)
+                            profile_serializer = ProfileSerializer(profile_obj)
+                            prof_data = profile_serializer.data
+
+                    date_time_obj = datetime.strptime(prof_data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    prof_data['birth_date'] = date_time_obj
+                    question_data['profile'] = prof_data
                 except Profile.DoesNotExist:
                     profile_data['owner'] = UserCreateSerializer(user).data
+                    profile_data['middle_name'] = profile_data['middle_name']
                     birth_date = profile_data['birth_date']
                     date_time_obj = datetime.strptime(birth_date, "%d/%m/%Y %I:%M %p")
                     profile_data['birth_date'] = date_time_obj
+                    profile_data['birth_place'] = profile_data['birth_place']
+                    profile_data['district'] = profile_data['district']
+                    profile_data['gender'] = gender
                     profile_serializer = ProfileSerializer(data=profile_data, partial=True)
                     if not profile_serializer.is_valid():
                         return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
                     profile_obj = profile_serializer.save()
-                    question_data['profile'] = profile_serializer.data
+                    profile_data = profile_serializer.data
 
+                    date_time_obj = datetime.strptime(profile_data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    profile_data['birth_date'] = date_time_obj
+                    question_data['profile'] = profile_data
 
         else:
             print("no value")
 
         profile2_data = question_data.pop('profile2')
         if profile2_data is not None:
-            print("profile2_data has value")
+
+            if user.is_authenticated:
+                name = profile2_data['name']
+                gender = profile2_data['gender']
+                try:
+                    queryset2 = Profile.objects.get(owner=user, name__iexact=name)
+                    profile2_obj = ProfileSerializer(queryset2, many=False)
+                    prof2_data = profile2_obj.data
+                    if profile2_obj.data['middle_name'] == "" and profile2_obj.data['birth_date'] is None and profile2_obj.data['birth_place'] == "":
+                        prof2_data['middle_name'] = profile2_data['middle_name']
+                        birth_date2 = profile2_data['birth_date']
+                        date_time_obj2 = datetime.strptime(birth_date2, "%d/%m/%Y %I:%M %p")
+                        prof2_data['birth_date'] = date_time_obj2
+                        prof2_data['birth_place'] = profile2_data['birth_place']
+                        prof2_data['district'] = profile2_data['district']
+                        prof2_data['gender'] = gender
+                        serializer2 = ProfileSerializer(data=prof2_data, partial=True)
+                        if serializer2.is_valid():
+                            profile2_obj = serializer2.update(profile2_obj.instance, serializer2.validated_data)
+                            profile2_serializer = ProfileSerializer(profile2_obj)
+                            prof2_data = profile2_serializer.data
+
+                    date_time_obj2 = datetime.strptime(prof2_data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    prof2_data['birth_date'] = date_time_obj2
+                    question_data['profile2'] = prof2_data
+                except Profile.DoesNotExist:
+                    profile2_data['owner'] = UserCreateSerializer(user).data
+                    profile2_data['middle_name'] = profile2_data['middle_name']
+                    birth_date2 = profile2_data['birth_date']
+                    date_time_obj2 = datetime.strptime(birth_date2, "%d/%m/%Y %I:%M %p")
+                    profile2_data['birth_date'] = date_time_obj2
+                    profile2_data['birth_place'] = profile2_data['birth_place']
+                    profile2_data['district'] = profile2_data['district']
+                    profile2_data['gender'] = gender
+                    profile_serializer = ProfileSerializer(data=profile2_data, partial=True)
+                    if not profile_serializer.is_valid():
+                        return response.Response(profile_serializer.errors, status.HTTP_400_BAD_REQUEST)
+                    profile_obj = profile_serializer.save()
+                    profile2_data = profile_serializer.data
+
+                    date_time_obj2 = datetime.strptime(profile2_data['birth_date'], "%d/%m/%Y %I:%M %p")
+                    profile2_data['birth_date'] = date_time_obj2
+                    question_data['profile2'] = profile2_data
+
         else:
             print("profile2_data no value")
 
-        if profile_data is not None:
-            profile = question_data['profile']
-            date_time_obj = datetime.strptime(profile['birth_date'], "%d/%m/%Y %I:%M %p")
-            profile['birth_date'] = date_time_obj
-            question_data['profile'] = profile
+        # if profile_data is not None:
+        #     profile = question_data['profile']
+        #     # date_time_obj = datetime.strptime(profile['birth_date'], "%d/%m/%Y %I:%M %p")
+        #     # profile['birth_date'] = date_time_obj
+        #     question_data['profile'] = profile
 
         question_serializer = QuestionSerializer(data=question_data, partial=True)
         if not question_serializer.is_valid():
@@ -414,3 +479,42 @@ class QuestionViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         pass
+
+
+class AnswerViewSet(viewsets.ViewSet):
+
+    def list(self, request, qid):
+        print("qid")
+        print(qid)
+        user = request.user
+        queryset = None
+        ans_queryset = None
+        if user.is_authenticated:
+            queryset = Question.objects.get(id=qid)
+            if queryset is not None:
+                # serializer = QuestionSerializer(queryset)
+                question_owner = queryset.owner
+                if user.is_superuser or user.pk == question_owner.pk:
+                    try:
+                        ans_queryset = Answer.objects.get(question=queryset)
+                    except Answer.DoesNotExist:
+                        return Response({}, status.HTTP_200_OK)
+
+        ans_serializer = AnswerSerializer(ans_queryset, many=False)
+        return Response(ans_serializer.data, status.HTTP_200_OK)
+
+    # @swagger_auto_schema(request_body=QuestionSerializer)
+    # def create(self, request):
+    #     pass
+    #
+    # def retrieve(self, request, pk=None):
+    #     pass
+    #
+    # def update(self, request, pk=None):
+    #     pass
+    #
+    # def partial_update(self, request, pk=None):
+    #     pass
+    #
+    # def destroy(self, request, pk=None):
+    #     pass

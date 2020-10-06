@@ -20,7 +20,7 @@ class Profile(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} {}".format(self.name, self.father_name)
+        return "{} {}".format(self.name, self.middle_name)
 
 
 class Question(models.Model):
@@ -33,3 +33,19 @@ class Question(models.Model):
     paid = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.question_text
+
+    @property
+    def answers(self):
+        return self.answer_set.all()
+
+
+class Answer(models.Model):
+    answer_text = models.TextField()
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer_file = models.FileField(upload_to='uploads/answers/%Y/%m/%d/', blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+

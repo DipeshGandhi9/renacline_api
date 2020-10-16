@@ -32,6 +32,10 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
+admin.site.site_header = "Renacline Portal"
+admin.site.site_title = "Renacline Portal"
+admin.site.index_title = "Welcome to Renacline Portal"
+
 urlpatterns = [
     path('', admin.site.urls),
     #path('admin/', admin.site.urls),

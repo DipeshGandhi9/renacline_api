@@ -35,12 +35,11 @@ class Question(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.question_text
+        return "{} - posted by : {}".format(self.question_text, self.profile.name)
 
     @property
     def answers(self):
         return self.answer_set.all()
-
 
 class Answer(models.Model):
     answer_text = models.TextField()
@@ -49,3 +48,5 @@ class Answer(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.answer_text
